@@ -300,29 +300,19 @@
         // ניקוי פקודות ישנות בטעינת הדף
         localStorage.removeItem('donation_command');
         
-        // שליחת הודעה למסך הראשי
-        function sendMessage(type, data) {
-            try {
-                // יצירת פקודה חדשה
-                const command = {
-                    type: type,
-                    data: data,
-                    timestamp: Date.now()
-                };
-                
-                // שמירה ב-Firebase במקום ב-localStorage
-                firebase.database().ref('commands').set(command);
-                
-                // הדפס את הפקודה לבדיקה
-                console.log('שולח פקודה:', command);
-                
-                // הוספת סימון הצלחה
-                statusEl.textContent += ' ✓';
-            } catch (e) {
-                console.error('שגיאה בשליחת פקודה:', e);
-                statusEl.textContent = 'שגיאה בשליחה: ' + e.message;
-            }
-        }
+        // מעבר מידי לשיטה החלופית - לא מחכה לשגיאה בפיירבייס
+        // הערה: פיירבייס לרוב לא עובד טוב בין מכשירים שונים על גיטהאב פייג'ס
+        // אתחל את sendMessage להיות sendMessageAlternative בתחילת הדף
+        window.sendMessage = sendMessageAlternative;
+        console.log('משתמש בשיטה חלופית באופן קבוע - localStorage + iframe');
+        document.getElementById('connection-status').textContent = 'משתמש בשיטה חלופית: iframe סנכרון';
+        document.getElementById('connection-status').style.backgroundColor = 'rgba(255,165,0,0.7)';
+
+        // מיד כשהדף נטען, שלח פקודת בדיקה בשיטה החלופית
+        setTimeout(() => {
+            sendMessageAlternative('check', { message: 'בדיקת תקשורת דרך localStorage' });
+            statusEl.textContent = 'נשלחה בדיקת תקשורת (שיטה חלופית)';
+        }, 1000);
         
         // הוסף בתחילת ה-script בטעינת הדף
         window.addEventListener('load', function() {
