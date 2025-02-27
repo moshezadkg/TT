@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>פאנל שליטה - התרמה בידי!</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap');
+        
+        :root {
+            --main-red: #cc0000;
+            --main-yellow: #ffcc00;
+            --white: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Heebo', sans-serif;
+        }
+        
+        body {
+            background-color: #1e1e1e;
+            color: var(--white);
+            padding: 20px;
+        }
+        
+        h1 {
+            color: var(--main-yellow);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .control-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .control-section {
+            background: rgba(51, 51, 51, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--main-yellow);
+        }
+        
+        h2 {
+            color: var(--main-yellow);
+            border-bottom: 2px solid var(--main-yellow);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        
+        button {
+            background-color: var(--main-red);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            margin-bottom: 10px;
+        }
+        
+        button:hover {
+            background-color: #ff0000;
+        }
+        
+        .effects-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #333;
+            text-align: center;
+        }
+        
+        .audio-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .audio-track {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .audio-track button {
+            width: auto;
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .volume-slider {
+            flex-grow: 1;
+        }
+        
+        .recent-donations {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        
+        .donation-item {
+            padding: 8px;
+            border-bottom: 1px solid #444;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .donation-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>פאנל שליטה - התרמה בידי!</h1>
+    
+    <div class="control-container">
+        <div class="control-section">
+            <h2>הוספת תרומה</h2>
+            <form id="donation-form">
+                <div class="form-group">
+                    <label for="donor-name">שם התורם</label>
+                    <input type="text" id="donor-name" placeholder="הכנס שם תורם" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="donation-amount">סכום התרומה</label>
+                    <input type="number" id="donation-amount" placeholder="הכנס סכום" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="class-select">בחר שיעור</label>
+                    <select id="class-select" required>
+                        <option value="">בחר שיעור</option>
+                        <option value="a">שיעור א'</option>
+                        <option value="b">שיעור ב'</option>
+                        <option value="c">שיעור ג'</option>
+                        <option value="k1">קיבוץ א'</option>
+                        <option value="k2">קיבוץ גבוה</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="announce-donation">
+                        <input type="checkbox" id="announce-donation" checked>
+                        הקראת שם התורם והסכום
+                    </label>
+                </div>
+                
+                <button type="submit">הוסף תרומה</button>
+            </form>
+            
+            <div class="status" id="status">מוכן</div>
+            
+            <h3>תרומות אחרונות</h3>
+            <div class="recent-donations" id="recent-donations">
+                <!-- יתמלא דינמית -->
+            </div>
+        </div>
+        
+        <div class="control-section">
+            <h2>אפקטים מיוחדים</h2>
+            
+            <div class="effects-buttons">
+                <button id="applause-btn">כפיים 👏</button>
+                <button id="confetti-btn">קונפטי 🎉</button>
+                <button id="money-rain-btn">גשם כסף 💰</button>
+                <button id="fireworks-btn">זיקוקים 🎆</button>
+                <button id="announce-btn">הקראת הודעה</button>
+                <button id="stats-btn">הצג/הסתר סטטיסטיקות 📊</button>
+            </div>
+            
+            <div class="form-group" id="announce-form" style="display: none; margin-top: 15px;">
+                <label for="custom-message">הודעה להקראה</label>
+                <input type="text" id="custom-message" placeholder="הכנס הודעה להקראה">
+                <button id="send-announce-btn" style="margin-top: 10px;">שלח הודעה</button>
+            </div>
+            
+            <h2 style="margin-top: 20px;">מוזיקת רקע</h2>
+            
+            <div class="audio-controls">
+                <div class="audio-track">
+                    <button class="play-track" data-track="background1">▶️</button>
+                    <span>מוזיקת רקע שמחה</span>
+                </div>
+                <div class="audio-track">
+                    <button class="play-track" data-track="background2">▶️</button>
+                    <span>מוזיקת רקע דרמטית</span>
+                </div>
+                <div class="audio-track">
+                    <button class="play-track" data-track="background3">▶️</button>
+                    <span>מוזיקת רקע מרגשת</span>
+                </div>
+                <div class="audio-track">
+                    <button id="stop-music">⏹️ עצור מוזיקה</button>
+                </div>
+                
+                <div class="volume-control">
+                    <span>עוצמת שמע:</span>
+                    <input type="range" id="volume-slider" min="0" max="100" value="50" class="volume-slider">
+                    <span id="volume-value">50%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // הגדרת משתנים גלובליים
+        const donationForm = document.getElementById('donation-form');
+        const statusEl = document.getElementById('status');
+        const recentDonationsEl = document.getElementById('recent-donations');
+        const announceBtn = document.getElementById('announce-btn');
+        const announceForm = document.getElementById('announce-form');
+        const sendAnnounceBtn = document.getElementById('send-announce-btn');
+        
+        // כפתורי אפקטים
+        const applauseBtn = document.getElementById('applause-btn');
+        const confettiBtn = document.getElementById('confetti-btn');
+        const moneyRainBtn = document.getElementById('money-rain-btn');
+        const fireworksBtn = document.getElementById('fireworks-btn');
+        const statsBtn = document.getElementById('stats-btn');
+        
+        // שליטה במוזיקת רקע
+        const playTrackBtns = document.querySelectorAll('.play-track');
+        const stopMusicBtn = document.getElementById('stop-music');
+        const volumeSlider = document.getElementById('volume-slider');
+        const volumeValue = document.getElementById('volume-value');
+        
+        // שליחת הודעה למסך הראשי
+        function sendMessage(type, data) {
+            localStorage.setItem('donation_command', JSON.stringify({
+                type: type,
+                data: data,
+                timestamp: new Date().getTime()
+            }));
+        }
+        
+        // הוספת תרומה חדשה
+        donationForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const donorName = document.getElementById('donor-name').value;
+            const amount = parseInt(document.getElementById('donation-amount').value);
+            const classType = document.getElementById('class-select').value;
+            const announce = document.getElementById('announce-donation').checked;
+            
+            if (!donorName || !amount || !classType) return;
+            
+            sendMessage('new_donation', {
+                name: donorName,
+                amount: amount,
+                class: classType,
+                announce: announce
+            });
+            
+            // עדכון הרשימה המקומית
+            addToRecentDonations(donorName, amount, classType);
+            
+            // הודעת סטטוס
+            statusEl.textContent = `נשלח: ${donorName} תרם ${amount} ₪`;
+            
+            // אפס את הטופס
+            donationForm.reset();
+        });
+        
+        // הוספה לרשימת התרומות האחרונות
+        function addToRecentDonations(name, amount, classType) {
+            const classNames = {
+                'a': 'שיעור א\'',
+                'b': 'שיעור ב\'',
+                'c': 'שיעור ג\'',
+                'k1': 'קיבוץ א\'',
+                'k2': 'קיבוץ גבוה'
+            };
+            
+            const item = document.createElement('div');
+            item.className = 'donation-item';
+            item.innerHTML = `
+                <span>${name} - ${classNames[classType]}</span>
+                <span>₪${amount.toLocaleString()}</span>
+            `;
+            
+            recentDonationsEl.prepend(item);
+            
+            // הגבל לעשרה פריטים
+            if (recentDonationsEl.children.length > 10) {
+                recentDonationsEl.removeChild(recentDonationsEl.lastChild);
+            }
+        }
+        
+        // אפקטים
+        applauseBtn.addEventListener('click', () => {
+            sendMessage('effect', { name: 'applause' });
+            statusEl.textContent = 'נשלח: אפקט כפיים';
+        });
+        
+        confettiBtn.addEventListener('click', () => {
+            sendMessage('effect', { name: 'confetti' });
+            statusEl.textContent = 'נשלח: אפקט קונפטי';
+        });
+        
+        moneyRainBtn.addEventListener('click', () => {
+            sendMessage('effect', { name: 'money_rain' });
+            statusEl.textContent = 'נשלח: אפקט גשם כסף';
+        });
+        
+        fireworksBtn.addEventListener('click', () => {
+            sendMessage('effect', { name: 'fireworks' });
+            statusEl.textContent = 'נשלח: אפקט זיקוקים';
+        });
+        
+        statsBtn.addEventListener('click', () => {
+            sendMessage('effect', { name: 'toggle_stats' });
+            statusEl.textContent = 'נשלח: הצג/הסתר סטטיסטיקות';
+        });
+        
+        // הקראת הודעה מותאמת אישית
+        announceBtn.addEventListener('click', () => {
+            announceForm.style.display = announceForm.style.display === 'none' ? 'block' : 'none';
+        });
+        
+        sendAnnounceBtn.addEventListener('click', () => {
+            const message = document.getElementById('custom-message').value;
+            if (message) {
+                sendMessage('announce', { message: message });
+                statusEl.textContent = `נשלח להקראה: ${message}`;
+                document.getElementById('custom-message').value = '';
+                announceForm.style.display = 'none';
+            }
+        });
+        
+        // שליטה במוזיקת רקע
+        playTrackBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const track = btn.getAttribute('data-track');
+                sendMessage('audio', { 
+                    action: 'play', 
+                    track: track,
+                    volume: volumeSlider.value / 100
+                });
+                
+                statusEl.textContent = `נשלח: הפעלת מוזיקת רקע ${track}`;
+                
+                // עדכון הכפתורים
+                playTrackBtns.forEach(b => {
+                    b.textContent = '▶️';
+                });
+                btn.textContent = '⏸️';
+            });
+        });
+        
+        stopMusicBtn.addEventListener('click', () => {
+            sendMessage('audio', { action: 'stop' });
+            statusEl.textContent = 'נשלח: עצירת מוזיקת רקע';
+            
+            // עדכון הכפתורים
+            playTrackBtns.forEach(b => {
+                b.textContent = '▶️';
+            });
+        });
+        
+        volumeSlider.addEventListener('input', () => {
+            const value = volumeSlider.value;
+            volumeValue.textContent = `${value}%`;
+            
+            sendMessage('audio', { 
+                action: 'volume', 
+                volume: value / 100
+            });
+        });
+    </script>
+</body>
+</html> 

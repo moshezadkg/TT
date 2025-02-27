@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>התרמה בידי!</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap');
+        
+        :root {
+            --main-red: #cc0000;
+            --main-yellow: #ffcc00;
+            --white: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Heebo', sans-serif;
+        }
+        
+        body {
+            background-color: transparent;
+            color: var(--white);
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+            background-image: url('1.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        
+        .yellow-wave-top, .yellow-wave-bottom {
+            display: none;
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            background: transparent;
+        }
+        
+        .header {
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            transform-style: preserve-3d;
+            perspective: 500px;
+        }
+        
+        .title {
+            font-size: 5rem;
+            font-weight: 900;
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
+            transform: translateZ(20px);
+            display: inline-block;
+        }
+        
+        .title-highlight {
+            color: var(--main-yellow);
+        }
+        
+        .subtitle {
+            font-size: 2.2rem;
+            margin-top: -15px;
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        
+        .goal-progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        
+        .total-raised {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border: 2px solid var(--main-yellow);
+            animation: pulse 2s infinite;
+            transform-style: preserve-3d;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        
+        .total-raised h2 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .total-amount {
+            font-size: 4rem;
+            font-weight: 900;
+            color: var(--main-yellow);
+            text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
+        }
+        
+        .classes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            flex-grow: 1;
+        }
+        
+        .class-box {
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            border: 2px solid var(--main-yellow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .class-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .class-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--main-yellow);
+            padding-bottom: 10px;
+        }
+        
+        .class-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--main-yellow);
+        }
+        
+        .class-goal {
+            font-size: 1.4rem;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #ffcc00, #ffee99);
+            transition: width 1s ease-in-out;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.5) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            animation: shine 2s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .donations-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            max-height: 200px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--main-yellow) rgba(255, 255, 255, 0.1);
+        }
+        
+        .donations-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .donations-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        
+        .donations-list::-webkit-scrollbar-thumb {
+            background-color: var(--main-yellow);
+            border-radius: 4px;
+        }
+        
+        .donation-item {
+            padding: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .donor-name {
+            font-weight: bold;
+        }
+        
+        .donation-amount {
+            color: var(--main-yellow);
+            font-weight: bold;
+        }
+        
+        .recent-donation {
+            position: fixed;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: rgba(255, 204, 0, 0.9);
+            color: var(--main-red);
+            padding: 20px 40px;
+            border-radius: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            z-index: 100;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+        }
+        
+        .recent-donation.show {
+            animation: popIn 4s ease-in-out forwards;
+        }
+        
+        @keyframes popIn {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            10% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            20% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            80% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: var(--main-yellow);
+            opacity: 0;
+            z-index: 99;
+        }
+        
+        .control-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 300px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--main-yellow);
+        }
+        
+        .control-panel h3 {
+            color: var(--main-yellow);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .control-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .control-form input, .control-form select, .control-form button {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid var(--main-yellow);
+        }
+        
+        .control-form button {
+            background-color: var(--main-yellow);
+            color: var(--main-red);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .control-form button:hover {
+            background-color: var(--main-red);
+            color: var(--main-yellow);
+            border-color: var(--main-yellow);
+        }
+        
+        .effects-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .effects-buttons button {
+            flex: 1;
+            padding: 10px;
+            background-color: var(--main-yellow);
+            color: var(--main-red);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .effects-buttons button:hover {
+            background-color: var(--main-red);
+            color: var(--main-yellow);
+            border: 1px solid var(--main-yellow);
+        }
+        
+        @media (max-width: 1200px) {
+            .classes-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .classes-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* הוספת אפקט זיקוקים לחגיגת יעדים */
+        .firework {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            box-shadow: 0 0 10px 5px rgba(255, 204, 0, 0.8);
+            animation: firework-explosion 1s ease-out forwards;
+            z-index: 10;
+        }
+        
+        @keyframes firework-explosion {
+            0% { transform: scale(0.1); opacity: 1; }
+            50% { opacity: 1; }
+            100% { transform: scale(20); opacity: 0; }
+        }
+        
+        /* הוספת סטטיסטיקות בזמן אמת */
+        .statistics {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            border: 2px solid var(--main-yellow);
+            font-size: 1.2rem;
+            z-index: 10;
+            display: none; /* יופעל בלחיצת כפתור */
+        }
+        
+        /* כפתור חדש לתצוגה מלאה */
+        .fullscreen-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.75);
+            color: var(--white);
+            border: 2px solid var(--main-yellow);
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            z-index: 100;
+        }
+        
+        /* מניות נופלות (שטרות כסף) */
+        .money {
+            position: absolute;
+            top: -100px;
+            width: 50px;
+            height: 20px;
+            background-image: url('money.png'); /* יש להוסיף תמונת שטר כסף */
+            background-size: contain;
+            background-repeat: no-repeat;
+            z-index: 5;
+            opacity: 0.7;
+        }
+        
+        /* הקראה בקול */
+        .speech-bubble {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--white);
+            padding: 15px 25px;
+            border-radius: 30px;
+            font-size: 1.5rem;
+            z-index: 1000;
+            border: 2px solid var(--main-yellow);
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            transition: opacity 0.5s;
+            text-align: center;
+            max-width: 80%;
+        }
+        
+        .speech-bubble.show {
+            opacity: 1;
+        }
+        
+        /* סגנון לאלמנט האודיו (מוסתר ויזואלית) */
+        .audio-player {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        /* אפקט זיהוב למי שמדבר */
+        @keyframes speaking {
+            0% { box-shadow: 0 0 0 0 rgba(255, 204, 0, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 204, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 204, 0, 0); }
+        }
+        
+        .speaking {
+            animation: speaking 1.5s infinite;
+        }
+        
+        /* אפקט הבהוב לאלמנטים שמופיעים */
+        @keyframes appear {
+            0% { transform: scale(0.7); opacity: 0; }
+            70% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .appear {
+            animation: appear 0.5s forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="yellow-wave-top"></div>
+    <div class="yellow-wave-bottom"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">התרמה <span class="title-highlight">בידי!</span></h1>
+            <h2 class="subtitle">ב'אורליצקי' התשובה פשוטה.</h2>
+        </div>
+        
+        <div class="main-content">
+            <div class="total-raised">
+                <h2>סה"כ נאסף</h2>
+                <div class="total-amount" id="total-amount">₪0</div>
+            </div>
+            
+            <div class="classes-grid">
+                <div class="class-box">
+                    <div class="class-header">
+                        <div class="class-title">שיעור א'</div>
+                        <div class="class-goal">יעד: ₪10,000</div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progress-a" style="width: 0%"></div>
+                    </div>
+                    <div class="class-total">סה"כ: <span id="total-a">₪0</span></div>
+                    <div class="donations-list" id="donations-a">
+                        <!-- Donation items will be added here dynamically -->
+                    </div>
+                </div>
+                
+                <div class="class-box">
+                    <div class="class-header">
+                        <div class="class-title">שיעור ב'</div>
+                        <div class="class-goal">יעד: ₪12,000</div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progress-b" style="width: 0%"></div>
+                    </div>
+                    <div class="class-total">סה"כ: <span id="total-b">₪0</span></div>
+                    <div class="donations-list" id="donations-b">
+                        <!-- Donation items will be added here dynamically -->
+                    </div>
+                </div>
+                
+                <div class="class-box">
+                    <div class="class-header">
+                        <div class="class-title">שיעור ג'</div>
+                        <div class="class-goal">יעד: ₪15,000</div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progress-c" style="width: 0%"></div>
+                    </div>
+                    <div class="class-total">סה"כ: <span id="total-c">₪0</span></div>
+                    <div class="donations-list" id="donations-c">
+                        <!-- Donation items will be added here dynamically -->
+                    </div>
+                </div>
+                
+                <div class="class-box">
+                    <div class="class-header">
+                        <div class="class-title">קיבוץ א'</div>
+                        <div class="class-goal">יעד: ₪20,000</div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progress-k1" style="width: 0%"></div>
+                    </div>
+                    <div class="class-total">סה"כ: <span id="total-k1">₪0</span></div>
+                    <div class="donations-list" id="donations-k1">
+                        <!-- Donation items will be added here dynamically -->
+                    </div>
+                </div>
+                
+                <div class="class-box">
+                    <div class="class-header">
+                        <div class="class-title">קיבוץ גבוה</div>
+                        <div class="class-goal">יעד: ₪25,000</div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progress-k2" style="width: 0%"></div>
+                    </div>
+                    <div class="class-total">סה"כ: <span id="total-k2">₪0</span></div>
+                    <div class="donations-list" id="donations-k2">
+                        <!-- Donation items will be added here dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="recent-donation" id="recent-donation"></div>
+    
+    <div class="control-panel">
+        <h3>פאנל שליטה</h3>
+        <form class="control-form" id="donation-form">
+            <input type="text" id="donor-name" placeholder="שם התורם" required>
+            <input type="number" id="donation-amount" placeholder="סכום התרומה" required>
+            <select id="class-select" required>
+                <option value="">בחר שיעור</option>
+                <option value="a">שיעור א'</option>
+                <option value="b">שיעור ב'</option>
+                <option value="c">שיעור ג'</option>
+                <option value="k1">קיבוץ א'</option>
+                <option value="k2">קיבוץ גבוה</option>
+            </select>
+            <button type="submit">הוסף תרומה</button>
+        </form>
+        
+        <div class="effects-buttons">
+            <button id="applause-btn">כפיים 👏</button>
+            <button id="confetti-btn">קונפטי 🎉</button>
+            <button id="money-rain-btn">גשם כסף 💰</button>
+            <button id="fireworks-btn">זיקוקים 🎆</button>
+            <button id="stats-btn">סטטיסטיקות 📊</button>
+        </div>
+    </div>
+    
+    <div class="statistics" id="statistics">
+        <h3>סטטיסטיקות בזמן אמת</h3>
+        <p>תרומה ממוצעת: <span id="avg-donation">₪0</span></p>
+        <p>מספר תורמים: <span id="donors-count">0</span></p>
+        <p>תרומה גבוהה ביותר: <span id="max-donation">₪0</span></p>
+        <p>זמן שחלף: <span id="elapsed-time">00:00:00</span></p>
+    </div>
+    
+    <div class="fullscreen-btn" id="fullscreen-btn">צפייה מלאה</div>
+    
+    <div class="money" id="money"></div>
+    
+    <div class="speech-bubble" id="speech-bubble">
+        <span id="speech-bubble-text"></span>
+    </div>
+    
+    <div class="audio-player" id="audio-player">
+        <button class="play-track" data-track="background1">▶️</button>
+        <button class="play-track" data-track="background2">▶️</button>
+        <button class="play-track" data-track="background3">▶️</button>
+        <button id="stop-music">⏹️ עצור מוזיקה</button>
+    </div>
+    
+    <!-- בועת הקראה -->
+    <div class="speech-bubble" id="speech-bubble"></div>
+
+    <!-- נגני אודיו -->
+    <audio id="background-music" class="audio-player" loop></audio>
+    <audio id="audio-applause" src="https://www.soundjay.com/human/applause-01.mp3" preload="auto" class="audio-player"></audio>
+    <audio id="audio-donation" src="https://www.soundjay.com/button/sounds/button-09.mp3" preload="auto" class="audio-player"></audio>
+    <audio id="audio-confetti" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" preload="auto" class="audio-player"></audio>
+    
+    <script>
+        // Class goals
+        const goals = {
+            'a': 10000,
+            'b': 12000,
+            'c': 15000,
+            'k1': 20000,
+            'k2': 25000
+        };
+        
+        // Current totals
+        const totals = {
+            'a': 0,
+            'b': 0,
+            'c': 0,
+            'k1': 0,
+            'k2': 0
+        };
+        
+        // Sound effects
+        const sounds = {
+            applause: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-audience-light-applause-354.mp3'),
+            donation: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-coin-win-notification-1992.mp3'),
+            confetti: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3')
+        };
+        
+        // Initialize DOM elements
+        const donationForm = document.getElementById('donation-form');
+        const recentDonationEl = document.getElementById('recent-donation');
+        const applauseBtn = document.getElementById('applause-btn');
+        const confettiBtn = document.getElementById('confetti-btn');
+        
+        // Add donation
+        donationForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const donorName = document.getElementById('donor-name').value;
+            const amount = parseInt(document.getElementById('donation-amount').value);
+            const classType = document.getElementById('class-select').value;
+            
+            if (!donorName || !amount || !classType) return;
+            
+            // Add to total
+            totals[classType] += amount;
+            updateTotals();
+            
+            // Add donation to list
+            addDonationToList(donorName, amount, classType);
+            
+            // Show animation
+            showRecentDonation(donorName, amount);
+            
+            // Play sound
+            sounds.donation.play();
+            
+            // Clear form
+            donationForm.reset();
+        });
+        
+        function updateTotals() {
+            let grandTotal = 0;
+            
+            for (const [key, value] of Object.entries(totals)) {
+                document.getElementById(`total-${key}`).textContent = `₪${value.toLocaleString()}`;
+                
+                // Update progress bar
+                const percentage = Math.min((value / goals[key]) * 100, 100);
+                document.getElementById(`progress-${key}`).style.width = `${percentage}%`;
+                
+                grandTotal += value;
+            }
+            
+            document.getElementById('total-amount').textContent = `₪${grandTotal.toLocaleString()}`;
+        }
+        
+        function addDonationToList(name, amount, classType) {
+            const donationsList = document.getElementById(`donations-${classType}`);
+            
+            const donationItem = document.createElement('div');
+            donationItem.className = 'donation-item';
+            
+            const donorNameEl = document.createElement('div');
+            donorNameEl.className = 'donor-name';
+            donorNameEl.textContent = name;
+            
+            const amountEl = document.createElement('div');
+            amountEl.className = 'donation-amount';
+            amountEl.textContent = `₪${amount.toLocaleString()}`;
+            
+            donationItem.appendChild(donorNameEl);
+            donationItem.appendChild(amountEl);
+            
+            donationsList.prepend(donationItem);
+            
+            // Limit list to 10 items
+            if (donationsList.children.length > 10) {
+                donationsList.removeChild(donationsList.lastChild);
+            }
+        }
+        
+        function showRecentDonation(name, amount) {
+            recentDonationEl.textContent = `${name} תרם ${amount.toLocaleString()} ₪`;
+            recentDonationEl.classList.add('show');
+            
+            setTimeout(() => {
+                recentDonationEl.classList.remove('show');
+            }, 4000);
+            
+            createConfetti();
+        }
+        
+        // Sound effects buttons
+        applauseBtn.addEventListener('click', () => {
+            sounds.applause.play();
+        });
+        
+        confettiBtn.addEventListener('click', () => {
+            createConfetti(150);
+            sounds.confetti.play();
+        });
+        
+        // Create confetti effect
+        function createConfetti(count = 50) {
+            for (let i = 0; i < count; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                
+                // Random position, color and size
+                const size = Math.random() * 10 + 5;
+                const colors = ['#ffcc00', '#cc0000', '#ffffff', '#ffee99'];
+                
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.top = '-20px';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                confetti.style.opacity = '1';
+                
+                document.body.appendChild(confetti);
+                
+                // Animate falling
+                const duration = Math.random() * 3 + 2;
+                const rotation = Math.random() * 360;
+                const leftMove = Math.random() * 60 - 30;
+                
+                confetti.animate([
+                    { transform: `translateY(0) rotate(0deg)`, opacity: 1 },
+                    { transform: `translateY(100vh) translateX(${leftMove}px) rotate(${rotation}deg)`, opacity: 0 }
+                ], {
+                    duration: duration * 1000,
+                    easing: 'ease-in'
+                });
+                
+                // Remove after animation
+                setTimeout(() => {
+                    document.body.removeChild(confetti);
+                }, duration * 1000);
+            }
+        }
+        
+        // Add 3D effect to main title
+        const header = document.querySelector('.header');
+        
+        document.addEventListener('mousemove', (e) => {
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+            header.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+        });
+        
+        // Add some initial demo donations
+        setTimeout(() => {
+            const demoDonations = [
+                { name: 'משה כהן', amount: 1800, class: 'a' },
+                { name: 'יוסף לוי', amount: 1000, class: 'b' },
+                { name: 'דוד גולדברג', amount: 2500, class: 'c' },
+                { name: 'יעקב שטיין', amount: 3600, class: 'k1' },
+                { name: 'אליהו כץ', amount: 5000, class: 'k2' }
+            ];
+            
+            demoDonations.forEach((donation, index) => {
+                setTimeout(() => {
+                    totals[donation.class] += donation.amount;
+                    updateTotals();
+                    addDonationToList(donation.name, donation.amount, donation.class);
+                    showRecentDonation(donation.name, donation.amount);
+                    sounds.donation.play();
+                }, index * 2000);
+            });
+        }, 1000);
+
+        // קוד למסך מלא
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        fullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        });
+
+        // מעקב אחר סטטיסטיקות
+        let donorsCount = 0;
+        let maxDonation = 0;
+        let startTime = new Date();
+
+        // עדכון הסטטיסטיקות בכל פעם שמתווספת תרומה חדשה
+        function updateStatistics() {
+            // חישוב מספר התורמים הכולל
+            donorsCount++;
+            document.getElementById('donors-count').textContent = donorsCount;
+            
+            // חישוב תרומה ממוצעת
+            const avgDonation = Math.round(grandTotal / donorsCount);
+            document.getElementById('avg-donation').textContent = `₪${avgDonation.toLocaleString()}`;
+            
+            // עדכון התרומה הגבוהה ביותר
+            const currentDonation = parseInt(document.getElementById('donation-amount').value);
+            maxDonation = Math.max(maxDonation, currentDonation);
+            document.getElementById('max-donation').textContent = `₪${maxDonation.toLocaleString()}`;
+            
+            // עדכון זמן שחלף
+            setInterval(updateElapsedTime, 1000);
+        }
+
+        function updateElapsedTime() {
+            const now = new Date();
+            const diff = now - startTime;
+            
+            const hours = Math.floor(diff / 3600000);
+            const minutes = Math.floor((diff % 3600000) / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+            
+            const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('elapsed-time').textContent = timeString;
+        }
+
+        // כפתור סטטיסטיקות
+        const statsBtn = document.getElementById('stats-btn');
+        const statsPanel = document.getElementById('statistics');
+        statsBtn.addEventListener('click', () => {
+            statsPanel.style.display = statsPanel.style.display === 'none' || 
+                                       statsPanel.style.display === '' ? 'block' : 'none';
+        });
+
+        // גשם כסף
+        const moneyRainBtn = document.getElementById('money-rain-btn');
+        moneyRainBtn.addEventListener('click', () => {
+            createMoneyRain();
+            sounds.confetti.play();
+        });
+
+        function createMoneyRain(count = 30) {
+            for (let i = 0; i < count; i++) {
+                const money = document.createElement('div');
+                money.className = 'money';
+                money.style.left = `${Math.random() * 100}vw`;
+                money.style.transform = `rotate(${Math.random() * 360}deg)`;
+                
+                document.body.appendChild(money);
+                
+                const duration = Math.random() * 3 + 2;
+                const leftMove = Math.random() * 60 - 30;
+                
+                money.animate([
+                    { top: '-50px', transform: `rotate(0deg)` },
+                    { top: '110vh', transform: `translateX(${leftMove}px) rotate(${Math.random() * 360}deg)` }
+                ], {
+                    duration: duration * 1000,
+                    easing: 'ease-in'
+                });
+                
+                setTimeout(() => {
+                    document.body.removeChild(money);
+                }, duration * 1000);
+            }
+        }
+
+        // זיקוקים
+        const fireworksBtn = document.getElementById('fireworks-btn');
+        fireworksBtn.addEventListener('click', () => {
+            createFireworks();
+        });
+
+        function createFireworks(count = 10) {
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    const firework = document.createElement('div');
+                    firework.className = 'firework';
+                    
+                    firework.style.left = `${Math.random() * 100}vw`;
+                    firework.style.top = `${Math.random() * 70 + 10}vh`;
+                    
+                    document.body.appendChild(firework);
+                    
+                    setTimeout(() => {
+                        document.body.removeChild(firework);
+                    }, 1000);
+                }, i * 200);
+            }
+        }
+
+        // שיפור טופס התרומה - בדיקת השגת יעד
+        donationForm.addEventListener('submit', function(e) {
+            // הקוד הקיים...
+            
+            // בדיקה האם הושג יעד
+            const selectedClass = document.getElementById('class-select').value;
+            if (totals[selectedClass] >= goals[selectedClass] && 
+                totals[selectedClass] - amount < goals[selectedClass]) {
+                // הושג יעד!
+                createFireworks(15);
+                createMoneyRain(50);
+                sounds.applause.play();
+            }
+            
+            // עדכון סטטיסטיקות
+            updateStatistics();
+        });
+
+        // קוד לתמיכה בהקראה קולית
+        const speechBubble = document.getElementById('speech-bubble');
+        let speechUtterance = null;
+        const synth = window.speechSynthesis;
+
+        function speak(text) {
+            // עצור הקראה קודמת אם קיימת
+            if (speechUtterance) {
+                synth.cancel();
+            }
+            
+            // הצג בועת דיבור
+            speechBubble.textContent = text;
+            speechBubble.classList.add('show');
+            
+            // הגדרת הקראה חדשה
+            speechUtterance = new SpeechSynthesisUtterance(text);
+            speechUtterance.lang = 'he-IL';
+            speechUtterance.rate = 0.9;
+            speechUtterance.pitch = 1;
+            
+            // פעולות בסיום הקראה
+            speechUtterance.onend = function() {
+                speechBubble.classList.remove('show');
+                speechUtterance = null;
+            };
+            
+            // התחל הקראה
+            synth.speak(speechUtterance);
+        }
+
+        // ניהול מוזיקת רקע
+        const backgroundMusic = document.getElementById('background-music');
+        const backgroundTracks = {
+            'background1': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+            'background2': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+            'background3': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'
+        };
+
+        function playBackgroundMusic(track, volume = 0.5) {
+            backgroundMusic.src = backgroundTracks[track];
+            backgroundMusic.volume = volume;
+            backgroundMusic.play();
+        }
+
+        function stopBackgroundMusic() {
+            backgroundMusic.pause();
+            backgroundMusic.currentTime = 0;
+        }
+
+        // האזנה לפקודות מהפאנל החיצוני
+        let lastCommandTime = 0;
+
+        function checkForCommands() {
+            const commandStr = localStorage.getItem('donation_command');
+            
+            if (!commandStr) return;
+            
+            try {
+                const command = JSON.parse(commandStr);
+                
+                // בדוק אם זו פקודה חדשה
+                if (command.timestamp > lastCommandTime) {
+                    lastCommandTime = command.timestamp;
+                    
+                    // טיפול בפקודה
+                    handleCommand(command);
+                    
+                    // נקה פקודה לאחר טיפול
+                    //localStorage.removeItem('donation_command');
+                }
+            } catch (error) {
+                console.error('Error parsing command:', error);
+            }
+            
+            // בדוק שוב בעוד מעט
+            setTimeout(checkForCommands, 500);
+        }
+
+        // טיפול בפקודות שונות
+        function handleCommand(command) {
+            console.log('Received command:', command);
+            
+            switch(command.type) {
+                case 'new_donation':
+                    // הוסף תרומה חדשה
+                    const donation = command.data;
+                    totals[donation.class] += donation.amount;
+                    updateTotals();
+                    addDonationToList(donation.name, donation.amount, donation.class);
+                    showRecentDonation(donation.name, donation.amount);
+                    sounds.donation.play();
+                    
+                    // הקראה (אם מופעלת)
+                    if (donation.announce) {
+                        speak(`${donation.name} תרם ${donation.amount.toLocaleString()} שקלים. תודה רבה!`);
+                    }
+                    
+                    // בדוק השגת יעד
+                    if (totals[donation.class] >= goals[donation.class] && 
+                        totals[donation.class] - donation.amount < goals[donation.class]) {
+                        // הושג יעד!
+                        createFireworks(15);
+                        createMoneyRain(50);
+                        sounds.applause.play();
+                        
+                        // הקראת הודעת הישג
+                        const classNames = {
+                            'a': 'שיעור א\'',
+                            'b': 'שיעור ב\'',
+                            'c': 'שיעור ג\'',
+                            'k1': 'קיבוץ א\'',
+                            'k2': 'קיבוץ גבוה'
+                        };
+                        
+                        setTimeout(() => {
+                            speak(`מזל טוב! ${classNames[donation.class]} הגיע ליעד של ${goals[donation.class].toLocaleString()} שקלים!`);
+                        }, 2000);
+                    }
+                    break;
+                    
+                case 'effect':
+                    // הפעלת אפקט
+                    switch(command.data.name) {
+                        case 'applause':
+                            sounds.applause.play();
+                            break;
+                        case 'confetti':
+                            createConfetti(150);
+                            sounds.confetti.play();
+                            break;
+                        case 'money_rain':
+                            createMoneyRain(50);
+                            sounds.confetti.play();
+                            break;
+                        case 'fireworks':
+                            createFireworks(15);
+                            break;
+                        case 'toggle_stats':
+                            const statsPanel = document.getElementById('statistics');
+                            if (statsPanel) {
+                                statsPanel.style.display = statsPanel.style.display === 'none' || 
+                                                          statsPanel.style.display === '' ? 'block' : 'none';
+                            }
+                            break;
+                    }
+                    break;
+                    
+                case 'announce':
+                    // הקראת הודעה מותאמת אישית
+                    speak(command.data.message);
+                    break;
+                    
+                case 'audio':
+                    // שליטה במוזיקת רקע
+                    switch(command.data.action) {
+                        case 'play':
+                            playBackgroundMusic(command.data.track, command.data.volume);
+                            break;
+                        case 'stop':
+                            stopBackgroundMusic();
+                            break;
+                        case 'volume':
+                            backgroundMusic.volume = command.data.volume;
+                            break;
+                    }
+                    break;
+            }
+        }
+
+        // הפעל את מערכת הבדיקה של פקודות חדשות
+        checkForCommands();
+    </script>
+</body>
+</html> 
