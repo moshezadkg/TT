@@ -180,6 +180,10 @@
                     </label>
                 </div>
                 
+                <div class="form-group">
+                    <button id="test-connection-btn" style="background-color: #0066cc;">בדיקת חיבור למסך ראשי</button>
+                </div>
+                
                 <button type="submit">הוסף תרומה</button>
             </form>
             
@@ -259,14 +263,44 @@
         const volumeSlider = document.getElementById('volume-slider');
         const volumeValue = document.getElementById('volume-value');
         
+        // ניקוי פקודות ישנות בטעינת הדף
+        localStorage.removeItem('donation_command');
+        
         // שליחת הודעה למסך הראשי
         function sendMessage(type, data) {
-            localStorage.setItem('donation_command', JSON.stringify({
-                type: type,
-                data: data,
-                timestamp: new Date().getTime()
-            }));
+            try {
+                // יצירת פקודה חדשה
+                const command = {
+                    type: type,
+                    data: data,
+                    timestamp: Date.now()
+                };
+                
+                // שמירה ב-localStorage
+                localStorage.setItem('donation_command', JSON.stringify(command));
+                
+                // בדיקה/הצגה שהפקודה נשלחה בהצלחה
+                console.log('נשלחה פקודה:', command);
+                
+                // הוספת סימון הצלחה
+                setTimeout(() => {
+                    statusEl.textContent += ' ✓';
+                }, 300);
+            } catch (e) {
+                console.error('שגיאה בשליחת פקודה:', e);
+                statusEl.textContent = 'שגיאה בשליחה: ' + e.message;
+            }
         }
+        
+        // הוסף בתחילת ה-script בטעינת הדף
+        window.addEventListener('load', function() {
+            console.log('פאנל שליטה נטען!');
+            // מיד כשהדף נטען, שלח פקודת בדיקה
+            setTimeout(() => {
+                sendMessage('check', { message: 'בדיקת תקשורת' });
+                statusEl.textContent = 'מנסה להתחבר למסך ראשי...';
+            }, 1000);
+        });
         
         // הוספת תרומה חדשה
         donationForm.addEventListener('submit', function(e) {
@@ -400,6 +434,13 @@
                 action: 'volume', 
                 volume: value / 100
             });
+        });
+        
+        // והוסף את הקוד הבא בחלק ה-JavaScript
+        document.getElementById('test-connection-btn').addEventListener('click', function() {
+            // בדיקת שליחת הודעה
+            sendMessage('test', { time: Date.now() });
+            statusEl.textContent = 'נשלחה בדיקת תקשורת...';
         });
     </script>
 </body>
