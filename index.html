@@ -621,8 +621,10 @@
         <button id="stop-music">⏹️ עצור מוזיקה</button>
     </div>
     
-    <!-- בועת הקראה -->
-    <div class="speech-bubble" id="speech-bubble"></div>
+    <!-- להוסיף אחרי תגי ה-audio בתחתית ה-body -->
+    <div id="audio-interaction" style="position: fixed; bottom: 10px; left: 10px; z-index: 9999; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 5px; display: none;">
+        <button onclick="enableAudio()" style="background: #cc0000; color: white; border: none; padding: 5px 10px; cursor: pointer;">הפעל אפשרות שמע</button>
+    </div>
 
     <!-- נגני אודיו -->
     <audio id="background-music" preload="auto"></audio>
@@ -992,6 +994,7 @@
         };
 
         function playBackgroundMusic(track, volume = 0.5) {
+            console.log(`מנסה לנגן מוזיקה: ${track}, עוצמה: ${volume}`);
             // מקור המוזיקה בהתאם לסוג המוזיקה שנבחר
             const trackSources = {
                 'background1': 'https://www.bensound.com/bensound-music/bensound-happyrock.mp3',
@@ -999,7 +1002,14 @@
                 'background3': 'https://www.bensound.com/bensound-music/bensound-energy.mp3'
             };
             
-            // נקה מקורות קודמים
+            const backgroundMusic = document.getElementById('background-music');
+            
+            if (!backgroundMusic) {
+                console.error('לא נמצא אלמנט audio לניגון');
+                return;
+            }
+            
+            // עצור ניגון נוכחי
             backgroundMusic.pause();
             backgroundMusic.currentTime = 0;
             
@@ -1008,13 +1018,17 @@
                 backgroundMusic.src = trackSources[track];
                 // הגדר עוצמת קול
                 backgroundMusic.volume = volume;
-                // השמע אוטומטית
-                backgroundMusic.play().catch(err => {
-                    console.error('שגיאה בניגון מוזיקת רקע:', err);
-                    speak('שגיאה בהפעלת המוזיקה. ייתכן שהדפדפן חוסם ניגון אוטומטי.');
-                });
                 
-                console.log(`מנגן מוזיקת רקע: ${track} בעוצמה ${volume}`);
+                // נסה לנגן
+                const playPromise = backgroundMusic.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        console.log('מוזיקה מנוגנת בהצלחה');
+                    }).catch(err => {
+                        console.error('שגיאה בניגון מוזיקה:', err);
+                        speak('שגיאה בהפעלת המוזיקה. יש צורך באינטראקציה של המשתמש.');
+                    });
+                }
             } else {
                 console.error(`מקור המוזיקה ${track} לא קיים`);
             }
@@ -1138,15 +1152,25 @@
                     
                 case 'audio':
                     // שליטה במוזיקת רקע
+                    const backgroundMusic = document.getElementById('background-music');
+                    if (!backgroundMusic) {
+                        console.error('אלמנט audio לא נמצא');
+                        break;
+                    }
+                    
                     switch(command.data.action) {
                         case 'play':
+                            console.log('מנסה לנגן מוזיקה:', command.data);
                             playBackgroundMusic(command.data.track, command.data.volume);
                             break;
                         case 'stop':
                             stopBackgroundMusic();
                             break;
                         case 'volume':
-                            backgroundMusic.volume = command.data.volume;
+                            if (backgroundMusic) {
+                                backgroundMusic.volume = command.data.volume;
+                                console.log(`עוצמת השמע שונתה: ${command.data.volume}`);
+                            }
                             break;
                     }
                     break;
@@ -1158,6 +1182,35 @@
                     break;
             }
         }
+
+        // פונקציה להפעלת אודיו - מוסיפה אינטראקציה למשתמש לפתרון בעיית autoplay
+        function enableAudio() {
+            const backgroundMusic = document.getElementById('background-music');
+            if (backgroundMusic) {
+                // נגן ועצור מיד - מספיק לאפשר שמע
+                backgroundMusic.play().then(() => {
+                    backgroundMusic.pause();
+                    backgroundMusic.currentTime = 0;
+                    document.getElementById('audio-interaction').style.display = 'none';
+                    speak('מערכת השמע הופעלה בהצלחה');
+                }).catch(err => {
+                    console.error('עדיין יש שגיאה באפשור אודיו:', err);
+                });
+            }
+        }
+
+        // בדיקת אפשרות ניגון אוטומטי
+        window.addEventListener('DOMContentLoaded', function() {
+            const audio = document.createElement('audio');
+            const canAutoplay = audio.play();
+            
+            if (canAutoplay !== undefined) {
+                canAutoplay.catch(() => {
+                    // הדפדפן דורש אינטראקציה - הצג את כפתור האפשור
+                    document.getElementById('audio-interaction').style.display = 'block';
+                });
+            }
+        });
     </script>
 </body>
 </html> 
