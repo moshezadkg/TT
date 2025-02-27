@@ -479,6 +479,10 @@
         .appear {
             animation: appear 0.5s forwards;
         }
+
+        img[src$="money.png"] {
+            display: none; /* הסתר תמונה שחסרה */
+        }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -660,6 +664,15 @@
     
     <div id="connection-status" style="position: fixed; bottom: 10px; right: 10px; padding: 5px 10px; background: rgba(0,0,0,0.7); border-radius: 5px; font-size: 12px;">
         מנותק
+    </div>
+
+    <!-- הוסף לפני תג סגירת ה-body -->
+    <div id="audio-permission" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+        <div style="background: #333; padding: 20px; border-radius: 10px; text-align: center; max-width: 80%;">
+            <h2 style="color: var(--main-yellow); margin-bottom: 20px;">יש להפעיל את המערכת</h2>
+            <p style="margin-bottom: 20px;">הדפדפן דורש אינטראקציה כדי לאפשר שמע. לחץ על הכפתור כדי להתחיל.</p>
+            <button id="start-system-btn" style="background: var(--main-red); color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 18px;">התחל מערכת</button>
+        </div>
     </div>
 
     <script>
@@ -1249,8 +1262,13 @@
             document.getElementById('connection-status').textContent = 'מחובר לשרת';
             document.getElementById('connection-status').style.backgroundColor = 'rgba(0,128,0,0.7)';
           } else {
-            document.getElementById('connection-status').textContent = 'מנותק מהשרת';
-            document.getElementById('connection-status').style.backgroundColor = 'rgba(255,0,0,0.7)';
+            console.log('עובר לשיטה חלופית - localStorage משופר');
+            window.lastCommandTimeAlt = Date.now();
+            checkForCommandsAlternative();
+            
+            const connectionStatus = document.getElementById('connection-status');
+            connectionStatus.textContent = 'משתמש בשיטה חלופית: בדיקות localStorage';
+            connectionStatus.style.backgroundColor = 'rgba(255,165,0,0.7)';
           }
         });
 
@@ -1281,29 +1299,22 @@
             setTimeout(checkForCommandsAlternative, 300);
         }
 
-        // בדיקה אם Firebase נכשל, במקרה כזה השתמש בפתרון החלופי
-        setTimeout(() => {
-            const connectionStatus = document.getElementById('connection-status');
-            if (connectionStatus.textContent.includes('מנותק') || 
-                connectionStatus.textContent.includes('שגיאה')) {
-                console.log('עובר לשיטה חלופית - localStorage משופר');
-                window.lastCommandTimeAlt = Date.now();
-                checkForCommandsAlternative();
-                
-                connectionStatus.textContent = 'מחובר (שיטה חלופית)';
-                connectionStatus.style.backgroundColor = 'rgba(255,165,0,0.7)';
-            }
-        }, 5000); // בדוק אחרי 5 שניות
-
-        // בדוק אם הדף נטען כפריים סנכרון
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('sync')) {
-            console.log('נטען כפריים סנכרון - בודק פקודות');
-            const commandStr = localStorage.getItem('donation_command_v2');
-            if (commandStr) {
-                console.log('נמצאה פקודה בסנכרון:', commandStr);
-            }
-        }
+        // הוסף קוד להפעלת המערכת מידי
+        document.getElementById('start-system-btn').addEventListener('click', function() {
+            // יצירת והפעלת אלמנט אודיו כדי "לפתוח" את אפשרות השמע בדפדפן
+            const tempAudio = new Audio();
+            tempAudio.volume = 0.1;
+            tempAudio.src = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA";
+            tempAudio.play().then(() => {
+                console.log('אפשרות שמע הופעלה בהצלחה');
+                // הסר את שכבת האישור
+                document.getElementById('audio-permission').style.display = 'none';
+            }).catch(err => {
+                console.error('שגיאה בהפעלת שמע:', err);
+                // נסה שוב בלחיצה נוספת
+                alert('יש ללחוץ שוב על הכפתור כדי להפעיל שמע');
+            });
+        });
     </script>
 </body>
 </html> 
