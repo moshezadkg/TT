@@ -216,20 +216,24 @@
             <h2 style="margin-top: 20px;">מוזיקת רקע</h2>
             
             <div class="audio-controls">
+                <div class="form-group">
+                    <button id="test-connection-btn" style="background-color: #0066cc;">בדיקת חיבור למסך ראשי</button>
+                </div>
+                
                 <div class="audio-track">
+                    <span>♫ מוזיקה שמחה</span>
                     <button class="play-track" data-track="background1">▶️</button>
-                    <span>מוזיקת רקע שמחה</span>
                 </div>
                 <div class="audio-track">
+                    <span>♫ מוזיקה קצבית</span>
                     <button class="play-track" data-track="background2">▶️</button>
-                    <span>מוזיקת רקע דרמטית</span>
                 </div>
                 <div class="audio-track">
+                    <span>♫ מוזיקה אנרגטית</span>
                     <button class="play-track" data-track="background3">▶️</button>
-                    <span>מוזיקת רקע מרגשת</span>
                 </div>
                 <div class="audio-track">
-                    <button id="stop-music">⏹️ עצור מוזיקה</button>
+                    <button id="stop-music" style="background-color: #333;">⏹️ עצור מוזיקה</button>
                 </div>
                 
                 <div class="volume-control">
@@ -269,23 +273,25 @@
         // שליחת הודעה למסך הראשי
         function sendMessage(type, data) {
             try {
-                // יצירת פקודה חדשה
+                // יצירת פקודה חדשה עם טימסטאמפ ייחודי יותר
                 const command = {
                     type: type,
                     data: data,
-                    timestamp: Date.now()
+                    timestamp: Date.now() + Math.random() // הוספת ערך רנדומלי להבטחת ייחודיות
                 };
+                
+                // הדפס את הפקודה לבדיקה
+                console.log('שולח פקודה:', command);
                 
                 // שמירה ב-localStorage
                 localStorage.setItem('donation_command', JSON.stringify(command));
                 
-                // בדיקה/הצגה שהפקודה נשלחה בהצלחה
-                console.log('נשלחה פקודה:', command);
+                // בדיקה שהפקודה נשמרה
+                const savedCommand = localStorage.getItem('donation_command');
+                console.log('הפקודה נשמרה:', savedCommand ? 'כן' : 'לא');
                 
                 // הוספת סימון הצלחה
-                setTimeout(() => {
-                    statusEl.textContent += ' ✓';
-                }, 300);
+                statusEl.textContent += ' ✓';
             } catch (e) {
                 console.error('שגיאה בשליחת פקודה:', e);
                 statusEl.textContent = 'שגיאה בשליחה: ' + e.message;
@@ -442,6 +448,17 @@
             sendMessage('test', { time: Date.now() });
             statusEl.textContent = 'נשלחה בדיקת תקשורת...';
         });
+
+        // בדיקת גישה ל-localStorage
+        try {
+            localStorage.setItem('test_item', 'test_value');
+            const testItem = localStorage.getItem('test_item');
+            console.log('בדיקת localStorage:', testItem === 'test_value' ? 'תקין' : 'יש בעיה');
+            localStorage.removeItem('test_item');
+        } catch (e) {
+            console.error('אין גישה ל-localStorage:', e);
+            alert('שגיאה: אין גישה למערכת localStorage. הדף לא יעבוד כראוי.');
+        }
     </script>
 </body>
 </html> 
