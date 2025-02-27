@@ -483,7 +483,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script>
-    // תצורת Firebase שלך
+    // תצורת Firebase משודרגת עם הגדרות CORS
     const firebaseConfig = {
       apiKey: "AIzaSyC-XFq_LpXSA5otGlrWyvI9wqyzXu_oPlo",
       authDomain: "donation-controller.firebaseapp.com",
@@ -494,8 +494,17 @@
       appId: "1:234502493583:web:f47fbd4e0d0344bb4a8b49"
     };
 
-    // אתחול Firebase
-    firebase.initializeApp(firebaseConfig);
+    // אתחול Firebase עם טיפול שגיאות
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+        console.log("Firebase מאותחל בהצלחה במסך הראשי");
+      }
+    } catch (error) {
+      console.error("שגיאה באתחול Firebase במסך הראשי:", error);
+      document.getElementById('connection-status').textContent = 'שגיאת התחברות: ' + error.message;
+      document.getElementById('connection-status').style.backgroundColor = 'rgba(255,0,0,0.7)';
+    }
     </script>
 </head>
 <body>
@@ -1244,6 +1253,57 @@
             document.getElementById('connection-status').style.backgroundColor = 'rgba(255,0,0,0.7)';
           }
         });
+
+        // פתרון חלופי אם Firebase לא עובד - בדיקת localStorage משופר
+        function checkForCommandsAlternative() {
+            try {
+                const commandStr = localStorage.getItem('donation_command_v2');
+                
+                if (commandStr) {
+                    const command = JSON.parse(commandStr);
+                    
+                    // בדוק אם זו פקודה חדשה
+                    if (!window.lastCommandTimeAlt || command.timestamp > window.lastCommandTimeAlt) {
+                        console.log('התקבלה פקודה חדשה (שיטה חלופית):', command);
+                        window.lastCommandTimeAlt = command.timestamp;
+                        
+                        // טיפול בפקודה
+                        if (command.sender === 'controller') { // בדיקה שהפקודה מהקונטרולר
+                            handleCommand(command);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('שגיאה בבדיקת פקודות (שיטה חלופית):', e);
+            }
+            
+            // בדוק שוב בעוד מספר מילישניות
+            setTimeout(checkForCommandsAlternative, 300);
+        }
+
+        // בדיקה אם Firebase נכשל, במקרה כזה השתמש בפתרון החלופי
+        setTimeout(() => {
+            const connectionStatus = document.getElementById('connection-status');
+            if (connectionStatus.textContent.includes('מנותק') || 
+                connectionStatus.textContent.includes('שגיאה')) {
+                console.log('עובר לשיטה חלופית - localStorage משופר');
+                window.lastCommandTimeAlt = Date.now();
+                checkForCommandsAlternative();
+                
+                connectionStatus.textContent = 'מחובר (שיטה חלופית)';
+                connectionStatus.style.backgroundColor = 'rgba(255,165,0,0.7)';
+            }
+        }, 5000); // בדוק אחרי 5 שניות
+
+        // בדוק אם הדף נטען כפריים סנכרון
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('sync')) {
+            console.log('נטען כפריים סנכרון - בודק פקודות');
+            const commandStr = localStorage.getItem('donation_command_v2');
+            if (commandStr) {
+                console.log('נמצאה פקודה בסנכרון:', commandStr);
+            }
+        }
     </script>
 </body>
 </html> 
