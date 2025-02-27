@@ -625,10 +625,10 @@
     <div class="speech-bubble" id="speech-bubble"></div>
 
     <!-- נגני אודיו -->
-    <audio id="background-music" class="audio-player" loop></audio>
-    <audio id="audio-applause" src="https://www.soundjay.com/human/applause-01.mp3" preload="auto" class="audio-player"></audio>
-    <audio id="audio-donation" src="https://www.soundjay.com/button/sounds/button-09.mp3" preload="auto" class="audio-player"></audio>
-    <audio id="audio-confetti" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" preload="auto" class="audio-player"></audio>
+    <audio id="background-music" preload="auto"></audio>
+    <audio id="audio-applause" src="https://www.soundjay.com/human/applause-01.mp3" preload="auto"></audio>
+    <audio id="audio-donation" src="https://www.soundjay.com/button/sounds/button-09.mp3" preload="auto"></audio>
+    <audio id="audio-confetti" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" preload="auto"></audio>
     
     <script>
         // Class goals
@@ -651,9 +651,9 @@
         
         // Sound effects
         const sounds = {
-            applause: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-audience-light-applause-354.mp3'),
-            donation: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-coin-win-notification-1992.mp3'),
-            confetti: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3')
+            applause: document.getElementById('audio-applause'),
+            donation: document.getElementById('audio-donation'),
+            confetti: document.getElementById('audio-confetti')
         };
         
         // Initialize DOM elements
@@ -992,44 +992,75 @@
         };
 
         function playBackgroundMusic(track, volume = 0.5) {
-            backgroundMusic.src = backgroundTracks[track];
-            backgroundMusic.volume = volume;
-            backgroundMusic.play();
+            // מקור המוזיקה בהתאם לסוג המוזיקה שנבחר
+            const trackSources = {
+                'background1': 'https://www.bensound.com/bensound-music/bensound-happyrock.mp3',
+                'background2': 'https://www.bensound.com/bensound-music/bensound-dance.mp3',
+                'background3': 'https://www.bensound.com/bensound-music/bensound-energy.mp3'
+            };
+            
+            // נקה מקורות קודמים
+            backgroundMusic.pause();
+            backgroundMusic.currentTime = 0;
+            
+            if (trackSources[track]) {
+                // הגדר את מקור המוזיקה
+                backgroundMusic.src = trackSources[track];
+                // הגדר עוצמת קול
+                backgroundMusic.volume = volume;
+                // השמע אוטומטית
+                backgroundMusic.play().catch(err => {
+                    console.error('שגיאה בניגון מוזיקת רקע:', err);
+                    speak('שגיאה בהפעלת המוזיקה. ייתכן שהדפדפן חוסם ניגון אוטומטי.');
+                });
+                
+                console.log(`מנגן מוזיקת רקע: ${track} בעוצמה ${volume}`);
+            } else {
+                console.error(`מקור המוזיקה ${track} לא קיים`);
+            }
         }
 
         function stopBackgroundMusic() {
+            const backgroundMusic = document.getElementById('background-music');
             backgroundMusic.pause();
             backgroundMusic.currentTime = 0;
+            console.log('מוזיקת רקע הופסקה');
         }
 
-        // האזנה לפקודות מהפאנל החיצוני
+        // משתנה לזיהוי פקודות חדשות
         let lastCommandTime = 0;
 
+        // פונקציה לבדיקת פקודות חדשות
         function checkForCommands() {
-            const commandStr = localStorage.getItem('donation_command');
-            
-            if (!commandStr) return;
-            
             try {
-                const command = JSON.parse(commandStr);
+                const commandStr = localStorage.getItem('donation_command');
                 
-                // בדוק אם זו פקודה חדשה
-                if (command.timestamp > lastCommandTime) {
-                    lastCommandTime = command.timestamp;
+                if (commandStr) {
+                    const command = JSON.parse(commandStr);
                     
-                    // טיפול בפקודה
-                    handleCommand(command);
-                    
-                    // נקה פקודה לאחר טיפול
-                    //localStorage.removeItem('donation_command');
+                    // בדוק אם זו פקודה חדשה
+                    if (!lastCommandTime || command.timestamp > lastCommandTime) {
+                        console.log('התקבלה פקודה חדשה:', command);
+                        lastCommandTime = command.timestamp;
+                        
+                        // טיפול בפקודה
+                        handleCommand(command);
+                    }
                 }
-            } catch (error) {
-                console.error('Error parsing command:', error);
+            } catch (e) {
+                console.error('שגיאה בבדיקת פקודות:', e);
             }
             
-            // בדוק שוב בעוד מעט
-            setTimeout(checkForCommands, 500);
+            // בדוק שוב בעוד מספר מילישניות
+            setTimeout(checkForCommands, 300);
         }
+
+        // אתחול המערכת בטעינת הדף
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('מסך ראשי נטען, מאזין לפקודות...');
+            lastCommandTime = Date.now(); // אתחול הזמן התחלתי
+            checkForCommands(); // התחל לבדוק פקודות
+        });
 
         // טיפול בפקודות שונות
         function handleCommand(command) {
@@ -1119,11 +1150,14 @@
                             break;
                     }
                     break;
+                    
+                case 'test':
+                    console.log('התקבלה בדיקת תקשורת!', command.data);
+                    // הצג הודעה על המסך
+                    speak("בדיקת תקשורת הצליחה!");
+                    break;
             }
         }
-
-        // הפעל את מערכת הבדיקה של פקודות חדשות
-        checkForCommands();
     </script>
 </body>
 </html> 
