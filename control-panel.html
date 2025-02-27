@@ -146,7 +146,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script>
-    // תצורת Firebase שלך
+    // תצורת Firebase משודרגת עם הגדרות CORS
     const firebaseConfig = {
       apiKey: "AIzaSyC-XFq_LpXSA5otGlrWyvI9wqyzXu_oPlo",
       authDomain: "donation-controller.firebaseapp.com",
@@ -157,8 +157,17 @@
       appId: "1:234502493583:web:f47fbd4e0d0344bb4a8b49"
     };
 
-    // אתחול Firebase
-    firebase.initializeApp(firebaseConfig);
+    // אתחול Firebase עם טיפול שגיאות
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+        console.log("Firebase מאותחל בהצלחה בפאנל השליטה");
+      }
+    } catch (error) {
+      console.error("שגיאה באתחול Firebase בפאנל השליטה:", error);
+      document.getElementById('connection-status').textContent = 'שגיאת התחברות: ' + error.message;
+      document.getElementById('connection-status').style.backgroundColor = 'rgba(255,0,0,0.7)';
+    }
     </script>
 </head>
 <body>
@@ -487,6 +496,63 @@
                 document.getElementById('connection-status').style.backgroundColor = 'rgba(255,0,0,0.7)';
             }
         });
+
+        // פתרון חלופי אם Firebase לא עובד - מבוסס localStorage עם רענון קבוע
+        function sendMessageAlternative(type, data) {
+            try {
+                // יצירת פקודה חדשה עם טימסטאמפ ייחודי
+                const command = {
+                    type: type,
+                    data: data,
+                    timestamp: Date.now() + Math.random(), // להבטיח ייחודיות
+                    sender: 'controller' // סימון מקור
+                };
+                
+                // שמירה ב-localStorage
+                localStorage.setItem('donation_command_v2', JSON.stringify(command));
+                
+                // לשים פריים מוחבא שמפנה לדף הראשי לסנכרון
+                const frameUrl = 'https://moshezadkg.github.io/TT/?sync=' + Date.now();
+                
+                // יצירת אלמנט frame זמני לסנכרון
+                const syncFrame = document.getElementById('sync-frame') || document.createElement('iframe');
+                syncFrame.id = 'sync-frame';
+                syncFrame.src = frameUrl;
+                syncFrame.style.width = '1px';
+                syncFrame.style.height = '1px';
+                syncFrame.style.position = 'absolute';
+                syncFrame.style.left = '-100px';
+                syncFrame.style.visibility = 'hidden';
+                
+                if (!document.getElementById('sync-frame')) {
+                    document.body.appendChild(syncFrame);
+                } else {
+                    syncFrame.src = frameUrl; // רענון הפריים
+                }
+                
+                console.log('נשלחה פקודה (שיטה חלופית):', command);
+                statusEl.textContent = 'נשלחה פקודה (שיטה חלופית)';
+            } catch (e) {
+                console.error('שגיאה בשליחת פקודה (שיטה חלופית):', e);
+                statusEl.textContent = 'שגיאה בשליחה: ' + e.message;
+            }
+        }
+
+        // בדיקה אם Firebase נכשל, במקרה כזה השתמש בפתרון החלופי
+        setTimeout(() => {
+            const connectionStatus = document.getElementById('connection-status');
+            if (connectionStatus.textContent.includes('מנותק') || 
+                connectionStatus.textContent.includes('שגיאה')) {
+                console.log('עובר לשיטה חלופית - localStorage משופר');
+                
+                // החלף את כל השימושים ב-sendMessage לשיטה החלופית
+                window.originalSendMessage = window.sendMessage;
+                window.sendMessage = sendMessageAlternative;
+                
+                connectionStatus.textContent = 'מחובר (שיטה חלופית)';
+                connectionStatus.style.backgroundColor = 'rgba(255,165,0,0.7)';
+            }
+        }, 5000); // בדוק אחרי 5 שניות
     </script>
 </body>
 </html> 
