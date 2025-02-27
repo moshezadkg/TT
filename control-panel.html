@@ -143,6 +143,23 @@
             border-bottom: none;
         }
     </style>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script>
+    // תצורת Firebase שלך
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-XFq_LpXSA5otGlrWyvI9wqyzXu_oPlo",
+      authDomain: "donation-controller.firebaseapp.com",
+      databaseURL: "https://donation-controller-default-rtdb.firebaseio.com",
+      projectId: "donation-controller",
+      storageBucket: "donation-controller.appspot.com",
+      messagingSenderId: "234502493583",
+      appId: "1:234502493583:web:f47fbd4e0d0344bb4a8b49"
+    };
+
+    // אתחול Firebase
+    firebase.initializeApp(firebaseConfig);
+    </script>
 </head>
 <body>
     <h1>פאנל שליטה - התרמה בידי!</h1>
@@ -245,6 +262,10 @@
         </div>
     </div>
     
+    <div id="connection-status" style="position: fixed; bottom: 10px; right: 10px; padding: 5px 10px; background: rgba(0,0,0,0.7); border-radius: 5px; font-size: 12px;">
+        מנותק
+    </div>
+    
     <script>
         // הגדרת משתנים גלובליים
         const donationForm = document.getElementById('donation-form');
@@ -273,22 +294,18 @@
         // שליחת הודעה למסך הראשי
         function sendMessage(type, data) {
             try {
-                // יצירת פקודה חדשה עם טימסטאמפ ייחודי יותר
+                // יצירת פקודה חדשה
                 const command = {
                     type: type,
                     data: data,
-                    timestamp: Date.now() + Math.random() // הוספת ערך רנדומלי להבטחת ייחודיות
+                    timestamp: Date.now()
                 };
+                
+                // שמירה ב-Firebase במקום ב-localStorage
+                firebase.database().ref('commands').set(command);
                 
                 // הדפס את הפקודה לבדיקה
                 console.log('שולח פקודה:', command);
-                
-                // שמירה ב-localStorage
-                localStorage.setItem('donation_command', JSON.stringify(command));
-                
-                // בדיקה שהפקודה נשמרה
-                const savedCommand = localStorage.getItem('donation_command');
-                console.log('הפקודה נשמרה:', savedCommand ? 'כן' : 'לא');
                 
                 // הוספת סימון הצלחה
                 statusEl.textContent += ' ✓';
@@ -459,6 +476,17 @@
             console.error('אין גישה ל-localStorage:', e);
             alert('שגיאה: אין גישה למערכת localStorage. הדף לא יעבוד כראוי.');
         }
+
+        // הוסף קוד לבדיקת חיבור
+        firebase.database().ref('.info/connected').on('value', (snap) => {
+            if (snap.val() === true) {
+                document.getElementById('connection-status').textContent = 'מחובר לשרת';
+                document.getElementById('connection-status').style.backgroundColor = 'rgba(0,128,0,0.7)';
+            } else {
+                document.getElementById('connection-status').textContent = 'מנותק מהשרת';
+                document.getElementById('connection-status').style.backgroundColor = 'rgba(255,0,0,0.7)';
+            }
+        });
     </script>
 </body>
 </html> 
