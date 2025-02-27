@@ -480,6 +480,23 @@
             animation: appear 0.5s forwards;
         }
     </style>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script>
+    // תצורת Firebase שלך
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-XFq_LpXSA5otGlrWyvI9wqyzXu_oPlo",
+      authDomain: "donation-controller.firebaseapp.com",
+      databaseURL: "https://donation-controller-default-rtdb.firebaseio.com",
+      projectId: "donation-controller",
+      storageBucket: "donation-controller.appspot.com",
+      messagingSenderId: "234502493583",
+      appId: "1:234502493583:web:f47fbd4e0d0344bb4a8b49"
+    };
+
+    // אתחול Firebase
+    firebase.initializeApp(firebaseConfig);
+    </script>
 </head>
 <body>
     <div class="yellow-wave-top"></div>
@@ -632,6 +649,10 @@
     <audio id="audio-donation" src="https://www.soundjay.com/button/sounds/button-09.mp3" preload="auto"></audio>
     <audio id="audio-confetti" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" preload="auto"></audio>
     
+    <div id="connection-status" style="position: fixed; bottom: 10px; right: 10px; padding: 5px 10px; background: rgba(0,0,0,0.7); border-radius: 5px; font-size: 12px;">
+        מנותק
+    </div>
+
     <script>
         // Class goals
         const goals = {
@@ -1041,39 +1062,40 @@
             console.log('מוזיקת רקע הופסקה');
         }
 
-        // משתנה לזיהוי פקודות חדשות
+        // החלף את כל הקוד של checkForCommands ו-lastCommandTime
         let lastCommandTime = 0;
 
-        // פונקציה לבדיקת פקודות חדשות
-        function checkForCommands() {
-            try {
-                const commandStr = localStorage.getItem('donation_command');
-                
-                if (commandStr) {
-                    const command = JSON.parse(commandStr);
-                    
-                    // בדוק אם זו פקודה חדשה
-                    if (!lastCommandTime || command.timestamp > lastCommandTime) {
-                        console.log('התקבלה פקודה חדשה:', command);
-                        lastCommandTime = command.timestamp;
-                        
-                        // טיפול בפקודה
-                        handleCommand(command);
-                    }
-                }
-            } catch (e) {
-                console.error('שגיאה בבדיקת פקודות:', e);
-            }
+        // האזנה לשינויים ב-Firebase
+        function listenForCommands() {
+            const commandsRef = firebase.database().ref('commands');
             
-            // בדוק שוב בעוד מספר מילישניות
-            setTimeout(checkForCommands, 300);
+            commandsRef.on('value', (snapshot) => {
+                try {
+                    const command = snapshot.val();
+                    
+                    if (command && command.timestamp) {
+                        // בדוק אם זו פקודה חדשה
+                        if (!lastCommandTime || command.timestamp > lastCommandTime) {
+                            console.log('התקבלה פקודה חדשה:', command);
+                            lastCommandTime = command.timestamp;
+                            
+                            // טיפול בפקודה
+                            handleCommand(command);
+                        }
+                    }
+                } catch (e) {
+                    console.error('שגיאה בקריאת פקודה מ-Firebase:', e);
+                }
+            });
+            
+            console.log('מאזין לפקודות מהשרת...');
         }
 
         // אתחול המערכת בטעינת הדף
         window.addEventListener('DOMContentLoaded', function() {
-            console.log('מסך ראשי נטען, מאזין לפקודות...');
+            console.log('מסך ראשי נטען');
             lastCommandTime = Date.now(); // אתחול הזמן התחלתי
-            checkForCommands(); // התחל לבדוק פקודות
+            listenForCommands(); // התחל להאזין לפקודות
         });
 
         // טיפול בפקודות שונות
@@ -1210,6 +1232,17 @@
                     document.getElementById('audio-interaction').style.display = 'block';
                 });
             }
+        });
+
+        // הוסף קוד לבדיקת חיבור
+        firebase.database().ref('.info/connected').on('value', (snap) => {
+          if (snap.val() === true) {
+            document.getElementById('connection-status').textContent = 'מחובר לשרת';
+            document.getElementById('connection-status').style.backgroundColor = 'rgba(0,128,0,0.7)';
+          } else {
+            document.getElementById('connection-status').textContent = 'מנותק מהשרת';
+            document.getElementById('connection-status').style.backgroundColor = 'rgba(255,0,0,0.7)';
+          }
         });
     </script>
 </body>
