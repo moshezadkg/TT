@@ -487,6 +487,7 @@
             display: flex;
             gap: 0.5rem;
             align-items: center;
+            direction: ltr;
         }
 
         .time-unit {
@@ -1048,18 +1049,23 @@
                 <div class="time-unit">
                     <span class="time-value" id="days">0</span>
                     <span class="time-label">ימים</span>
-                    </div>
+                </div>
                 <div class="time-separator">:</div>
                 <div class="time-unit">
                     <span class="time-value" id="hours">00</span>
                     <span class="time-label">שעות</span>
-                    </div>
+                </div>
                 <div class="time-separator">:</div>
                 <div class="time-unit">
                     <span class="time-value" id="minutes">00</span>
                     <span class="time-label">דקות</span>
-                    </div>
-                    </div>
+                </div>
+                <div class="time-separator">:</div>
+                <div class="time-unit">
+                    <span class="time-value" id="seconds">00</span>
+                    <span class="time-label">שניות</span>
+                </div>
+            </div>
                 </div>
                 </div>
 
@@ -1378,6 +1384,9 @@
     <script>
         let selectedSouls = 0;
         let selectedAmount = 0;
+        
+        // Google Sheets API URL
+        const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyGPD-zXqM4Us6MuJMZRsm-2AU-YsY8vAYBJ5ILHUpVRO2zjhZM-Om9mTTJwKEZMwyhsQ/exec';
 
         // פתיחת תמונה במודאל
         function openImageModal(imageSrc) {
@@ -1440,8 +1449,32 @@
             updateFloatingButton(); // עדכון כפתור צף
         }
 
+        // שליחת תרומה ל-Google Sheets
+        async function saveDonationToSheets(donation) {
+            try {
+                const response = await fetch(GOOGLE_SHEETS_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        timestamp: donation.timestamp,
+                        name: donation.name,
+                        amount: donation.amount,
+                        souls: donation.souls,
+                        prayerNames: donation.prayerNames
+                    })
+                });
+                
+                console.log('תרומה נשמרה ב-Google Sheets בהצלחה');
+            } catch (error) {
+                console.error('שגיאה בשמירת תרומה:', error);
+            }
+        }
+
         // מעבר לתשלום
-        function goToPayment() {
+        async function goToPayment() {
             if (selectedAmount < 25) {
                 alert('הסכום המינימלי לתרומה הוא 25 ₪');
                 return false;
@@ -1451,20 +1484,24 @@
             const donorName = document.getElementById('donor-name').value.trim() || 'אנונימי';
             const prayerNames = document.getElementById('prayer-names').value.trim();
 
-            // שמירה מקומית לרצועה
+            // יצירת אובייקט תרומה
             const donation = {
-                id: Date.now(),
-                date: new Date().toISOString(),
+                timestamp: new Date().toLocaleString('he-IL', { 
+                    timeZone: 'Asia/Jerusalem',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }),
                 name: donorName,
-                prayerNames: prayerNames,
+                amount: selectedAmount,
                 souls: selectedSouls,
-                amount: selectedAmount
+                prayerNames: prayerNames
             };
 
-            let donations = JSON.parse(localStorage.getItem('kaparotDonations') || '[]');
-            donations.push(donation);
-            localStorage.setItem('kaparotDonations', JSON.stringify(donations));
-            updateTicker();
+            // שמירה ל-Google Sheets
+            await saveDonationToSheets(donation);
 
             // הכנת הערות
             let notes = 'פדיון כפרות - ' + selectedSouls + ' נפשות';
@@ -1485,19 +1522,41 @@
             window.location.href = donationUrl + '?' + params.toString();
         }
 
+        // טעינת תרומות מ-Google Sheets
+        async function loadDonationsFromSheets() {
+            try {
+                const response = await fetch(GOOGLE_SHEETS_URL);
+                const data = await response.json();
+                
+                if (data.success && data.donations) {
+                    return data.donations;
+                }
+                return [];
+            } catch (error) {
+                console.error('שגיאה בטעינת תרומות:', error);
+                // תרומות ברירת מחדל למקרה של שגיאה
+                return [
+                    { name: 'יוסף כהן', amount: 180, souls: 6, prayerNames: 'לעילוי נשמת אבי מורי' },
+                    { name: 'משה לוי', amount: 150, souls: 5, prayerNames: 'לרפואת רחל בת שרה' },
+                    { name: 'אברהם שלום', amount: 120, souls: 4, prayerNames: '' },
+                    { name: 'דוד אבוקסיס', amount: 90, souls: 3, prayerNames: 'לזכות המשפחה' },
+                    { name: 'שמואל ביטון', amount: 60, souls: 2, prayerNames: '' }
+                ];
+            }
+        }
+
         // עדכון רצועה
-        function updateTicker() {
-            let donations = JSON.parse(localStorage.getItem('kaparotDonations') || '[]');
+        async function updateTicker() {
+            const donations = await loadDonationsFromSheets();
             const tickerContent = document.getElementById('ticker-content');
 
             if (donations.length === 0) {
-                donations = [
-                    { name: 'יוסף כהן', amount: 180, souls: 6, notes: 'לעילוי נשמת אבי מורי' },
-                    { name: 'משה לוי', amount: 150, souls: 5, notes: 'לרפואת רחל בת שרה' },
-                    { name: 'אברהם שלום', amount: 120, souls: 4, notes: '' },
-                    { name: 'דוד אבוקסיס', amount: 90, souls: 3, notes: 'לזכות המשפחה' },
-                    { name: 'שמואל ביטון', amount: 60, souls: 2, notes: '' }
-                ];
+                // תרומות ברירת מחדל
+                donations.push(
+                    { name: 'יוסף כהן', amount: 180, souls: 6, prayerNames: 'לעילוי נשמת אבי מורי' },
+                    { name: 'משה לוי', amount: 150, souls: 5, prayerNames: 'לרפואת רחל בת שרה' },
+                    { name: 'אברהם שלום', amount: 120, souls: 4, prayerNames: '' }
+                );
             }
 
             const recentDonations = donations.slice(-15).reverse();
@@ -1516,8 +1575,6 @@
                 // הוספת שמות לתפילה
                 if (donation.prayerNames) {
                     html += `<span class="note">🤲 ${donation.prayerNames}</span>`;
-                } else if (donation.notes) {
-                    html += `<span class="note">"${donation.notes}"</span>`;
                 }
                 
                 html += `<span class="separator">✦</span></div>`;
@@ -1553,10 +1610,47 @@
         }
 
         function shareEmail() {
-            const url = window.location.href;
-            const subject = 'פדיון כפרות תשפ"ו - ת"ת ישיבת אוהל יוסף';
-            const body = `שלום רב,\n\nאני רוצה לשתף אתכם בהזדמנות מיוחדת לעשות מצווה:\n\nפדיון כפרות תשפ"ו - ת"ת ישיבת אוהל יוסף בני ברק\nע"ש מרן הרב עובדיה יוסף זצוק"ל\n\n💙 התרומות מוכרות למס (סעיף 46)\n✨ 100% צדקה - כל הכסף עובר לתמיכה בבני הישיבה\n\nלתרומה: ${url}\n\nתזכו למצוות!\n`;
-            window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            const subject = 'פדיון כפרות - יום רביעי ערב יום הכיפורים תשפ"ו';
+            const body = `שלום וברכה
+
+פדיון כפרות - יום רביעי ערב יום הכיפורים תשפ"ו
+
+נהגו ישראל בין ראש השנה ולפני יום הכיפורים לעשות את ה"כפרות" – לכפר על נפשותיהם.
+תוכלו לעשות את הכפרות השנה דרך תרומה לתומכי תורה של הישיבה.
+
+🧮 חישבנו עבורכם את פדיון הכפרות:
+• עבור נפש אחת - 30 ₪
+• עבור זוג - 60 ₪
+• עבור משפחה של 4 - 120 ₪
+• עבור משפחה גדולה של 8 - 240 ₪
+
+💡 הסכום המינימלי הוא 25 ₪ לנפש (דמי עוף), אך אפשר ומצווה לתרום מעבר לזה, כל אחד כפי היכולת.
+
+איך לתרום:
+📞 באשראי: 03-7630585 שלוחה 7923
+💳 ביט או אשראי דרך הקישור: https://nedar.im/DMwf
+
+התרומות עוזרות ומסייעות במהלך כל השנה עבור בני הישיבה:
+• מכירות שבועיות ומכירות חגים במחירים מסובסדים
+• תמיכות כספיות והוצאות רפואיות
+• תמיכה בחתני הישיבה - למעלה מ-40 חתנים בשנה
+• ליווי החתנים מרגע הווארט ועד שבירת הכוס
+• הכל ללא מטרות רווח
+
+✅ כל התרומות מוכרות למס לפי סעיף 46
+
+
+נוסח הכפרות:
+מסובבים את הכסף (או שטר) מעל הראש שלוש פעמים ואומרים בכל פעם:
+"זה חליפתי, זה תמורתי, זה כפרתי, זה הכסף ילך לצדקה, ואני אלך לחיים טובים ארוכים ולשלום"
+
+
+בברכת"ת
+ברוכים תהיו לה' וגמר חתימה טובה 🇮🇱`;
+
+            // פתיחת Gmail ישירות
+            const gmailUrl = `https://mail.google.com/mail/u/0/?fs=1&tf=cm&source=mailto&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.open(gmailUrl, '_blank');
         }
 
         function copyLink() {
@@ -1574,29 +1668,60 @@
 
         // ספירה לאחור ליום הכיפורים
         function updateCountdown() {
-            // יום הכיפורים תשפ"ו - 12 באוקטובר 2025 בשעה 18:00
-            const yomKippurDate = new Date('2025-10-12T18:00:00');
-            const now = new Date();
-            
-            const diff = yomKippurDate - now;
-            
-            if (diff <= 0) {
-                document.querySelector('.countdown-banner').innerHTML = `
-                    <div class="countdown-content">
-                        <i class="fas fa-star"></i>
-                        <span style="font-weight: 700; font-size: 1.2rem;">גמר חתימה טובה!</span>
-                    </div>
-                `;
-                return;
+            try {
+                // יום הכיפורים תשפ"ו - כניסה בשעה 18:15
+                const yomKippurDate = new Date(2025, 9, 1, 18, 15, 0); // 1 באוקטובר 2025 בשעה 18:15
+                const now = new Date();
+                
+                const diff = yomKippurDate - now;
+                
+                if (diff <= 0) {
+                    const banner = document.querySelector('.countdown-banner');
+                    if (banner) {
+                        banner.innerHTML = `
+                            <div class="countdown-content">
+                                <i class="fas fa-star"></i>
+                                <span style="font-weight: 700; font-size: 1.2rem;">גמר חתימה טובה!</span>
+                            </div>
+                        `;
+                    }
+                    return;
+                }
+                
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                const daysEl = document.getElementById('days');
+                const hoursEl = document.getElementById('hours');
+                const minutesEl = document.getElementById('minutes');
+                const secondsEl = document.getElementById('seconds');
+                
+                if (daysEl) {
+                    daysEl.textContent = days;
+                }
+                if (hoursEl) {
+                    hoursEl.textContent = String(hours).padStart(2, '0');
+                }
+                if (minutesEl) {
+                    minutesEl.textContent = String(minutes).padStart(2, '0');
+                }
+                if (secondsEl) {
+                    secondsEl.textContent = String(seconds).padStart(2, '0');
+                }
+            } catch (error) {
+                // במקרה של שגיאה, הצג לפחות את התאריך
+                const banner = document.querySelector('.countdown-banner');
+                if (banner) {
+                    banner.innerHTML = `
+                        <div class="countdown-content">
+                            <i class="fas fa-clock"></i>
+                            <span>יום הכיפורים תשפ"ו - 12 באוקטובר 2025</span>
+                        </div>
+                    `;
+                }
             }
-            
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            
-            document.getElementById('days').textContent = days;
-            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
         }
 
         // אתחול - רק אחרי שהדף נטען
@@ -1604,13 +1729,13 @@
             // חישוב ראשוני
             calculateAmount();
             
-            // עדכון רצועה
+            // עדכון רצועה - טעינה מ-Google Sheets
             updateTicker();
-            setInterval(updateTicker, 30000);
+            setInterval(updateTicker, 10000); // עדכון כל 10 שניות
             
             // עדכון ספירה לאחור
             updateCountdown();
-            setInterval(updateCountdown, 60000); // עדכון כל דקה
+            setInterval(updateCountdown, 1000); // עדכון כל שנייה
             
             // מניעת סגירת מודאל בלחיצה על התמונה
             const modalImage = document.getElementById('modal-image');
