@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>תודה על תרומתכם - פדיון כפרות תשפ"ו</title>
+    <link rel="icon" href="logo.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0A0F2D;
+            --accent-color: #C6A94A;
+            --success-color: #22c55e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1a2456 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            direction: rtl;
+        }
+
+        .success-container {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            animation: slideUp 0.6s ease-out;
+            border: 3px solid var(--accent-color);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .success-icon {
+            width: 120px;
+            height: 120px;
+            background: var(--success-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            animation: scaleIn 0.5s ease-out 0.3s both;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .success-icon i {
+            color: white;
+            font-size: 4rem;
+        }
+
+        .success-title {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .success-subtitle {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .blessing {
+            background: linear-gradient(135deg, #fffbf0 0%, #fff7e0 100%);
+            border: 2px solid var(--accent-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .blessing-text {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            font-weight: 600;
+            line-height: 1.8;
+        }
+
+        .info-box {
+            background: #f0f9ff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: right;
+        }
+
+        .info-box h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: start;
+            gap: 0.5rem;
+            margin: 0.8rem 0;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .info-item i {
+            color: var(--accent-color);
+            margin-top: 0.3rem;
+        }
+
+        .credit-info {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin: 1.5rem 0;
+            font-weight: 600;
+            color: #92400e;
+        }
+
+        .credit-info i {
+            color: #f59e0b;
+            margin-left: 0.5rem;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .buttons .btn {
+            max-width: 300px;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #b59942;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(198, 169, 74, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .share-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .share-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .share-btn i {
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .share-btn.whatsapp {
+            background: #25D366;
+        }
+
+        .share-btn.whatsapp:hover {
+            background: #1ea952;
+            transform: scale(1.1);
+        }
+
+        .share-btn.email {
+            background: #3b82f6;
+        }
+
+        .share-btn.email:hover {
+            background: #2563eb;
+            transform: scale(1.1);
+        }
+
+        @media screen and (max-width: 768px) {
+            .success-container {
+                padding: 2rem 1.5rem;
+            }
+
+            .success-title {
+                font-size: 2rem;
+            }
+
+            .success-subtitle {
+                font-size: 1rem;
+            }
+
+            .blessing-text {
+                font-size: 1.1rem;
+            }
+
+            .buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="success-icon">
+            <i class="fas fa-check"></i>
+        </div>
+
+        <h1 class="success-title">
+            תודה רבה על תרומתכם!
+        </h1>
+
+        <p class="success-subtitle">
+            התרומה בוצעה בהצלחה ונקלטה במערכת
+        </p>
+
+        <div class="blessing">
+            <div class="blessing-text">
+                🙏 תזכו לגמר חתימה טובה<br>
+                ✨ ולשנה טובה ומתוקה<br>
+                💫 ולברכה והצלחה בכל מעשי ידיכם
+            </div>
+        </div>
+
+        <div class="credit-info">
+            <i class="fas fa-credit-card"></i>
+            <strong>שימו לב:</strong> התרומה תופיע בפירוט כרטיס האשראי שלכם תחת השם
+            <strong>"מרכז הצדקה"</strong>
+        </div>
+
+        <div class="info-box">
+            <h3>
+                <i class="fas fa-info-circle"></i>
+                מידע חשוב
+            </h3>
+            
+            <div class="info-item">
+                <i class="fas fa-check-circle"></i>
+                <span><strong>קבלה מוכרת למס (סעיף 46)</strong> תישלח תוך 2 ימי עסקים לכתובת המייל שמילאתם</span>
+            </div>
+
+            <div class="info-item">
+                <i class="fas fa-heart"></i>
+                <span><strong>100% צדקה</strong> - כל הכסף עובר ישירות לתמיכה בבני ישיבת אוהל יוסף</span>
+            </div>
+
+            <div class="info-item">
+                <i class="fas fa-praying-hands"></i>
+                <span>התורמים ישלחו לברכה אצל ראשי הישיבה שליט"א</span>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin: 1.5rem 0;">
+            <p style="color: #666; margin-bottom: 0.5rem;">שתפו את המצווה:</p>
+            <div class="share-buttons">
+                <button onclick="shareWhatsApp()" class="share-btn whatsapp">
+                    <i class="fab fa-whatsapp"></i>
+                </button>
+                <button onclick="shareEmail()" class="share-btn email">
+                    <i class="fas fa-envelope"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <a href="index.html" class="btn btn-primary">
+                <i class="fas fa-hand-holding-heart"></i>
+                תרומה נוספת
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function shareWhatsApp() {
+            const text = '🕊️ פדיון כפרות תשפ"ו - ת"ת ישיבת אוהל יוסף בני ברק\n\n💙 התרומות מוכרות למס (סעיף 46)\n✨ 100% צדקה\n\nתרמו גם אתם: ';
+            const url = window.location.origin + '/index.html';
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text + url)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+        function shareEmail() {
+            const subject = 'פדיון כפרות תשפ"ו - ת"ת ישיבת אוהל יוסף';
+            const body = `שלום רב,\n\nתרמתי עכשיו לפדיון כפרות דרך ת"ת ישיבת אוהל יוסף בני ברק.\n\n💙 התרומות מוכרות למס (סעיף 46)\n✨ 100% צדקה\n\nאתם מוזמנים גם לתרום: ${window.location.origin}/index.html\n\nתזכו למצוות!`;
+            window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        }
+
+        // אפקט confetti
+        function createConfetti() {
+            const colors = ['#C6A94A', '#0A0F2D', '#1a2456', '#22c55e'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.style.position = 'fixed';
+                    confetti.style.width = '10px';
+                    confetti.style.height = '10px';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.left = Math.random() * window.innerWidth + 'px';
+                    confetti.style.top = '-10px';
+                    confetti.style.borderRadius = '50%';
+                    confetti.style.pointerEvents = 'none';
+                    confetti.style.zIndex = '9999';
+                    document.body.appendChild(confetti);
+
+                    const duration = Math.random() * 3 + 2;
+                    const xMovement = (Math.random() - 0.5) * 200;
+                    
+                    confetti.animate([
+                        { transform: 'translateY(0) translateX(0) rotate(0deg)', opacity: 1 },
+                        { transform: `translateY(${window.innerHeight}px) translateX(${xMovement}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+                    ], {
+                        duration: duration * 1000,
+                        easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+                    });
+
+                    setTimeout(() => confetti.remove(), duration * 1000);
+                }, i * 30);
+            }
+        }
+
+        // הפעלת confetti כשהדף נטען
+        window.addEventListener('load', () => {
+            setTimeout(createConfetti, 500);
+        });
+    </script>
+</body>
+</html>
